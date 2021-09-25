@@ -20,6 +20,14 @@ const (
 	MaxEntry     = 9
 )
 
+func NewEmptyBoard() [][]int {
+	res := make([][]int, 9)
+	for i := range res {
+		res[i] = make([]int, 9)
+	}
+	return res
+}
+
 type Solver struct {
 	nums  [TotalSquares]int
 	rows  [Dimension][Dimension]int

@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/cli"
+)
 
 func main() {
-	fmt.Println(`Hello, sudoku solver!`)
+	if err := cli.New(nil).Run(); err != nil {
+		log.Fatal(err)
+	}
 }
