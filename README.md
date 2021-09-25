@@ -2,7 +2,7 @@
 This is a simple sudoku solver. My goal is to also build two frontends for the core logic: a CLI and a REST API.
 
 ## Running
-Run `make cli` to start to CLI client, or `make rest` to start the REST client.
+Run `make cli` to start to CLI, or `make rest` to start the REST server.
 
 ## Building
 Run `make lambda` to build for AWS Lambda.
