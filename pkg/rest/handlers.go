@@ -3,8 +3,9 @@ package rest
 import (
 	"net/http"
 
-	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
 	"github.com/gin-gonic/gin"
+
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
 )
 
 func (s *Server) solve(c *gin.Context) {
