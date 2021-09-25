@@ -1,4 +1,4 @@
-package cli
+package ui
 
 import (
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
@@ -14,7 +14,7 @@ type Application struct {
 	app   *tview.Application
 }
 
-func New(board [][]int) *Application {
+func NewApp(board [][]int) *Application {
 	if board == nil {
 		board = solver.NewEmptyBoard()
 	}
@@ -42,7 +42,7 @@ func New(board [][]int) *Application {
 		name: `Enter`,
 		desc: `Solve Puzzle`,
 	}, {
-		name: `Esc`,
+		name: `Esc, Q`,
 		desc: `Quit`,
 	}})
 

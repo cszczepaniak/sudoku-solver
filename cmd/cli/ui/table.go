@@ -1,4 +1,4 @@
-package cli
+package ui
 
 import (
 	"fmt"
@@ -37,6 +37,8 @@ func (a *Application) initializeTable() {
 				{4, 7, 0, 8, 0, 5, 0, 0, 0},
 			}
 			a.redrawBoard()
+		case 'q':
+			a.app.Stop()
 		}
 
 		if event.Key() == tcell.KeyEnter {
