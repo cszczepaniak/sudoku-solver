@@ -39,6 +39,26 @@ func TestSolve(t *testing.T) {
 	require.Equal(t, solved, actual)
 }
 
+func TestNoSolution(t *testing.T) {
+	input := [][]int{
+		{5, 1, 6, 8, 4, 9, 7, 3, 2},
+		{3, 0, 7, 6, 0, 5, 0, 0, 0},
+		{8, 0, 9, 7, 0, 0, 0, 6, 5},
+		{1, 3, 5, 0, 6, 0, 9, 0, 7},
+		{4, 7, 2, 5, 9, 1, 0, 0, 6},
+		{9, 6, 8, 3, 7, 0, 0, 5, 0},
+		{2, 5, 3, 1, 8, 6, 0, 7, 4},
+		{6, 8, 4, 2, 0, 7, 5, 0, 0},
+		{7, 9, 1, 0, 5, 0, 6, 0, 8},
+	}
+	s, err := solver.New(input)
+	require.NoError(t, err)
+
+	actual, err := s.Solve()
+	require.Equal(t, solver.ErrNoSolution, err)
+	require.Nil(t, actual)
+}
+
 func TestToBoard(t *testing.T) {
 	input := [][]int{
 		{1, 0, 0, 0, 0, 0, 0, 0, 0},
