@@ -3,6 +3,7 @@ module github.com/cszczepaniak/sudoku-solver
 go 1.16
 
 require (
+	github.com/apex/gateway v1.1.2
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
