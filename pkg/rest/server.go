@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var _ http.Handler = (*Server)(nil)
@@ -14,6 +16,7 @@ type Server struct {
 
 func NewServer() *Server {
 	eng := gin.Default()
+	eng.Use(cors.AllowAll())
 	s := &Server{
 		eng: gin.Default(),
 	}
