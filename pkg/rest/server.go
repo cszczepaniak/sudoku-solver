@@ -18,7 +18,7 @@ func NewServer() *Server {
 	eng := gin.Default()
 	eng.Use(cors.AllowAll())
 	s := &Server{
-		eng: gin.Default(),
+		eng: eng,
 	}
 	s.AddEndpoints(eng)
 	return s
