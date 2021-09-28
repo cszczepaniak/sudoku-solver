@@ -1,3 +1,4 @@
+#!/bin/bash
 set -ex
 
 BUILD_NAME=$GITHUB_SHA

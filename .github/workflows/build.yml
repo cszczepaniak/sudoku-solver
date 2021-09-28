@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        run: sh scripts/build-lambda.sh
+        run: ./scripts/build-lambda.sh
         env:
           CI: true
       - name: AWS Creds
@@ -23,6 +23,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
       - name: Publish Artifact
-        run: sh scripts/publish-artifact.sh
+        run: ./scripts/publish-artifact.sh
       - name: Update Lambda
-        run: sh scripts/update-lambda.sh
+        run: ./scripts/update-lambda.sh
