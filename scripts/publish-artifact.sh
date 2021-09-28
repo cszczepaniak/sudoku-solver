@@ -1,3 +1,5 @@
 set -ex
 
-aws s3 cp $GITHUB_SHA.zip s3://sudoku-solver-artifacts/
+source ./scripts/variables.sh
+
+aws s3 cp $BUILD_NAME.zip s3://$ARTIFACT_BUCKET/
