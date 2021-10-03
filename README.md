@@ -8,4 +8,4 @@ Run `make cli` to start to CLI, or `make rest` to start the REST server locally.
 There is an automated pipeline that will build, zip, and upload the lambda to S3. It will then update the lambda in AWS. See `scripts/` for details.
 
 ## What's in `/rust`?
-I originally built this in Rust, and my original solution is there. I keep going back to Rust to learn a little more about it. I rebuilt it in Go because deploying a REST API to AWS Lambda/API Gateway is _so simple_ in Go but seemingly not quite as simple in Rust. I did have fun with Rust `enum`s and `match` for this, but ultimately Go was a better choice to get up and running in the cloud for me.
+I originally built this in Rust, and my original solution is there. However, I'm not an experienced Rust programmer (yet), so it was easier for me to switch to Go to make something I could deploy more easily and quickly.
