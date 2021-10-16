@@ -50,7 +50,7 @@ func New(board [][]int) (*Solver, error) {
 				continue
 			}
 			// write without regard to duplicates; we'll validate those later
-			s.writeAtRowCol(n, i, j)
+			s.writeAt(i, j, n)
 		}
 	}
 
@@ -89,12 +89,13 @@ func (s *Solver) solveFrom(start int) error {
 		}
 		for guess := MinEntry; guess <= MaxEntry; guess++ {
 			idx := start + i
-			if !s.cache.isValidEntry(idx/9, idx%9, guess) {
+			r, c := idx/9, idx%9
+			if !s.cache.isValidEntry(r, c, guess) {
 				continue
 			}
-			s.writeAt(guess, i+start)
+			s.writeAt(r, c, guess)
 			if err := s.solveFrom(start + i + 1); err == ErrNoSolution {
-				s.clearAt(guess, i+start)
+				s.clearAt(r, c, guess)
 				continue
 			} else if err != nil {
 				return err
@@ -106,19 +107,12 @@ func (s *Solver) solveFrom(start int) error {
 	return nil
 }
 
-func (s *Solver) writeAtRowCol(n, r, c int) {
-	s.writeAt(n, r*9+c)
-}
-
-// writeAt writes the given number at the given index and also updates internal puzzle state.
-// It returns true if the given number was valid at the given index, and false otherwise
-func (s *Solver) writeAt(n, idx int) {
-	r, c := idx/9, idx%9
-	s.nums[idx] = n
+func (s *Solver) writeAt(r, c, n int) {
+	s.nums[r*9+c] = n
 	s.cache.add(r, c, n)
 }
 
-func (s *Solver) clearAt(n, idx int) {
-	s.nums[idx] = 0
-	s.cache.remove(idx/9, idx%9, n)
+func (s *Solver) clearAt(r, c, n int) {
+	s.nums[r*9+c] = 0
+	s.cache.remove(r, c, n)
 }
