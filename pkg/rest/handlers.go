@@ -15,12 +15,12 @@ func (s *Server) solve(c *gin.Context) {
 	}
 	solver, err := solver.New(input)
 	if err != nil {
-		writeErrorResponse(c, http.StatusBadRequest, `invalid input`, err)
+		writeErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 	solution, err := solver.Solve()
 	if err != nil {
-		writeErrorResponse(c, http.StatusBadRequest, `error solving puzzle`, err)
+		writeErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 	c.JSON(http.StatusOK, solution)
@@ -29,15 +29,20 @@ func (s *Server) solve(c *gin.Context) {
 func bindSudokuBoard(c *gin.Context) ([][]int, bool) {
 	var input [][]int
 	if err := c.BindJSON(&input); err != nil {
-		writeErrorResponse(c, http.StatusBadRequest, `badly formed request body`, err)
+		writeErrorResponse(c, http.StatusBadRequest, err)
 		return nil, false
 	}
 	return input, true
 }
 
-func writeErrorResponse(c *gin.Context, code int, msg string, err error) {
-	c.JSON(code, gin.H{
-		`error`:  msg,
-		`detail`: err.Error(),
-	})
+func writeErrorResponse(c *gin.Context, code int, err error) {
+	resp := gin.H{
+		`error`: err.Error(),
+	}
+	switch terr := err.(type) {
+	case *solver.InvalidBoardError:
+		resp[`detail`] = terr.Errors
+	default:
+	}
+	c.JSON(code, resp)
 }

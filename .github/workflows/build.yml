@@ -1,6 +1,7 @@
 name: Build and Publish Artifact
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -12,17 +13,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
       - name: Build
         run: ./scripts/build-lambda.sh
         env:
           CI: true
+
       - name: AWS Creds
+        if: github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
+
       - name: Publish Artifact
+        if: github.ref == 'refs/heads/main'
         run: ./scripts/publish-artifact.sh
+
       - name: Update Lambda
+        if: github.ref == 'refs/heads/main'
         run: ./scripts/update-lambda.sh
