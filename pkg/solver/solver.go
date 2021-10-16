@@ -36,7 +36,7 @@ func New(board [][]int) (*Solver, error) {
 	s := &Solver{
 		cache: newPuzzleCache(),
 	}
-	errs := []*InvalidSquareError{}
+	var errs []*InvalidSquareError
 	for i, r := range board {
 		if len(r) != Dimension {
 			return nil, ErrWrongNumberOfCols
