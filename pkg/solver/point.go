@@ -6,20 +6,12 @@ type Point struct {
 	Box int
 }
 
-func NewPoint(r, c int) Point {
+func newPoint(r, c int) Point {
 	return Point{
 		Row: r,
 		Col: c,
 		Box: 3*(r/3) + c/3,
 	}
-}
-
-func PointFromIndex(idx int) Point {
-	return NewPoint(idx/9, idx%9)
-}
-
-func (p Point) Index() int {
-	return p.Row*9 + p.Col
 }
 
 type puzzleCache struct {
@@ -46,21 +38,21 @@ func (pc *puzzleCache) add(r, c, n int) {
 	if n == 0 {
 		return
 	}
-	pt := NewPoint(r, c)
+	pt := newPoint(r, c)
 	pc.rows[pt.Row].add(pt, n)
 	pc.cols[pt.Col].add(pt, n)
 	pc.boxes[pt.Box].add(pt, n)
 }
 
 func (pc *puzzleCache) remove(r, c, n int) {
-	pt := NewPoint(r, c)
+	pt := newPoint(r, c)
 	pc.rows[pt.Row].remove(pt, n)
 	pc.cols[pt.Col].remove(pt, n)
 	pc.boxes[pt.Box].remove(pt, n)
 }
 
 func (pc *puzzleCache) isValidEntry(r, c, n int) bool {
-	pt := NewPoint(r, c)
+	pt := newPoint(r, c)
 	return pc.rows[pt.Row].isValidEntry(n) &&
 		pc.cols[pt.Col].isValidEntry(n) &&
 		pc.boxes[pt.Box].isValidEntry(n)
@@ -73,19 +65,19 @@ func (pc *puzzleCache) validateDuplicates() []*InvalidSquareError {
 			if errSet == nil {
 				errSet = make(map[Point]*InvalidSquareError)
 			}
-			errSet[NewPoint(err.Row, err.Col)] = err
+			errSet[newPoint(err.Row, err.Col)] = err
 		}
 		for _, err := range pc.cols[i].getInvalidEntries() {
 			if errSet == nil {
 				errSet = make(map[Point]*InvalidSquareError)
 			}
-			errSet[NewPoint(err.Row, err.Col)] = err
+			errSet[newPoint(err.Row, err.Col)] = err
 		}
 		for _, err := range pc.boxes[i].getInvalidEntries() {
 			if errSet == nil {
 				errSet = make(map[Point]*InvalidSquareError)
 			}
-			errSet[NewPoint(err.Row, err.Col)] = err
+			errSet[newPoint(err.Row, err.Col)] = err
 		}
 	}
 	errs := make([]*InvalidSquareError, 0, len(errSet))
