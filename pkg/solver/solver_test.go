@@ -78,15 +78,48 @@ func TestToBoard(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	tests := []struct {
+		desc   string
 		input  [][]int
 		expErr error
 	}{{
+		desc:   `not enough rows`,
 		input:  [][]int{{1, 2, 3, 4, 5, 6, 7, 8, 9}},
 		expErr: solver.ErrWrongNumberOfRows,
 	}, {
+		desc: `too many rows`,
+		input: [][]int{
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		},
+		expErr: solver.ErrWrongNumberOfRows,
+	}, {
+		desc:   `not enough cols`,
 		input:  [][]int{{1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}},
 		expErr: solver.ErrWrongNumberOfCols,
 	}, {
+		desc: `too many cols`,
+		input: [][]int{
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		},
+		expErr: solver.ErrWrongNumberOfCols,
+	}, {
+		desc: `number too big`,
 		input: [][]int{
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -98,8 +131,15 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 10, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: solver.ErrNumberOutOfRange,
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 7,
+				Col: 6,
+				Msg: `number out of range`,
+			}},
+		},
 	}, {
+		desc: `number too small`,
 		input: [][]int{
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -111,10 +151,17 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: solver.ErrNumberOutOfRange,
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 2,
+				Col: 2,
+				Msg: `number out of range`,
+			}},
+		},
 	}, {
+		desc: `duplicate in row`,
 		input: [][]int{
-			{1, 1, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 1, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -124,11 +171,22 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: solver.ErrInvalidBoard,
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 0,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 0,
+				Col: 3,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
 	}, {
+		desc: `duplicate in row and box`,
 		input: [][]int{
-			{1, 0, 0, 0, 0, 0, 0, 0, 0},
-			{1, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 1, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -137,8 +195,67 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: solver.ErrInvalidBoard,
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 1,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 1,
+				Col: 2,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
 	}, {
+		desc: `duplicate in col`,
+		input: [][]int{
+			{1, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{1, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		},
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 0,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 4,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
+	}, {
+		desc: `duplicate in col and box`,
+		input: [][]int{
+			{0, 0, 0, 0, 0, 1, 0, 0, 0},
+			{0, 0, 0, 0, 0, 1, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		},
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 0,
+				Col: 5,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 1,
+				Col: 5,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
+	}, {
+		desc: `duplicate in box`,
 		input: [][]int{
 			{1, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -150,8 +267,55 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: solver.ErrInvalidBoard,
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 0,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 2,
+				Col: 2,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
 	}, {
+		desc: `a lot of duplicates`,
+		input: [][]int{
+			{1, 0, 0, 0, 0, 0, 0, 0, 1},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 1, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 3, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 1},
+			{0, 0, 1, 0, 0, 2, 0, 0, 0},
+		},
+		expErr: &solver.InvalidBoardError{
+			Errors: []*solver.InvalidSquareError{{
+				Row: 0,
+				Col: 0,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 0,
+				Col: 8,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 2,
+				Col: 2,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 7,
+				Col: 8,
+				Msg: `duplicate number in row, column, or box`,
+			}, {
+				Row: 8,
+				Col: 2,
+				Msg: `duplicate number in row, column, or box`,
+			}},
+		},
+	}, {
+		desc: `no error`,
 		input: [][]int{
 			{1, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 2, 0, 0, 0, 0, 0, 0, 0},
@@ -166,7 +330,16 @@ func TestNew(t *testing.T) {
 		expErr: nil,
 	}}
 	for _, tc := range tests {
-		_, err := solver.New(tc.input)
-		require.Equal(t, tc.expErr, err)
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			_, err := solver.New(tc.input)
+			switch exp := tc.expErr.(type) {
+			case *solver.InvalidBoardError:
+				require.IsType(t, &solver.InvalidBoardError{}, err)
+				require.ElementsMatch(t, exp.Errors, err.(*solver.InvalidBoardError).Errors)
+			default:
+				require.Equal(t, tc.expErr, err)
+			}
+		})
 	}
 }
