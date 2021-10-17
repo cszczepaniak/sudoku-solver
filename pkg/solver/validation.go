@@ -13,9 +13,9 @@ func (ibe *InvalidBoardError) Error() string {
 }
 
 type InvalidSquareError struct {
-	Row int
-	Col int
-	Msg string
+	Row int    `json:"row,omitempty"`
+	Col int    `json:"col,omitempty"`
+	Msg string `json:"msg,omitempty"`
 }
 
 func newInvalidSquareError(r, c int, reason invalidReason) *InvalidSquareError {
