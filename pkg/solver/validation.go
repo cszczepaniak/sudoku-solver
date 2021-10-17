@@ -13,8 +13,8 @@ func (ibe *InvalidBoardError) Error() string {
 }
 
 type InvalidSquareError struct {
-	Row int    `json:"row,omitempty"`
-	Col int    `json:"col,omitempty"`
+	Row int    `json:"row"`
+	Col int    `json:"col"`
 	Msg string `json:"msg,omitempty"`
 }
 
