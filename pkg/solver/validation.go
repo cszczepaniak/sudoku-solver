@@ -5,11 +5,11 @@ import (
 )
 
 type InvalidBoardError struct {
-	Errors []*InvalidSquareError
+	InvalidSquares []*InvalidSquareError
 }
 
 func (ibe *InvalidBoardError) Error() string {
-	return fmt.Sprintf(`invalid board: %d invalid squares`, len(ibe.Errors))
+	return fmt.Sprintf(`invalid board: %d invalid squares`, len(ibe.InvalidSquares))
 }
 
 type InvalidSquareError struct {

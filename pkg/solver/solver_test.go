@@ -132,7 +132,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 7,
 				Col: 6,
 				Msg: `number out of range`,
@@ -152,7 +152,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 2,
 				Col: 2,
 				Msg: `number out of range`,
@@ -172,7 +172,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 0,
 				Col: 0,
 				Msg: `duplicate number in row, column, or box`,
@@ -196,7 +196,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 1,
 				Col: 0,
 				Msg: `duplicate number in row, column, or box`,
@@ -220,7 +220,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 0,
 				Col: 0,
 				Msg: `duplicate number in row, column, or box`,
@@ -244,7 +244,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 0,
 				Col: 5,
 				Msg: `duplicate number in row, column, or box`,
@@ -268,7 +268,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 0,
 				Col: 0,
 				Msg: `duplicate number in row, column, or box`,
@@ -292,7 +292,7 @@ func TestNew(t *testing.T) {
 			{0, 0, 1, 0, 0, 2, 0, 0, 0},
 		},
 		expErr: &solver.InvalidBoardError{
-			Errors: []*solver.InvalidSquareError{{
+			InvalidSquares: []*solver.InvalidSquareError{{
 				Row: 0,
 				Col: 0,
 				Msg: `duplicate number in row, column, or box`,
@@ -336,7 +336,7 @@ func TestNew(t *testing.T) {
 			switch exp := tc.expErr.(type) {
 			case *solver.InvalidBoardError:
 				require.IsType(t, &solver.InvalidBoardError{}, err)
-				require.ElementsMatch(t, exp.Errors, err.(*solver.InvalidBoardError).Errors)
+				require.ElementsMatch(t, exp.InvalidSquares, err.(*solver.InvalidBoardError).InvalidSquares)
 			default:
 				require.Equal(t, tc.expErr, err)
 			}

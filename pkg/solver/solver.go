@@ -57,7 +57,7 @@ func New(board [][]int) (*Solver, error) {
 	errs = append(errs, s.cache.validateDuplicates()...)
 	if len(errs) != 0 {
 		return nil, &InvalidBoardError{
-			Errors: errs,
+			InvalidSquares: errs,
 		}
 	}
 	return s, nil
