@@ -41,7 +41,7 @@ func writeErrorResponse(c *gin.Context, code int, err error) {
 	}
 	switch terr := err.(type) {
 	case *solver.InvalidBoardError:
-		resp[`detail`] = terr.Errors
+		resp[`invalidSquares`] = terr.InvalidSquares
 	default:
 	}
 	c.JSON(code, resp)

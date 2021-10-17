@@ -63,13 +63,13 @@ func TestSolveSimpleErrors(t *testing.T) {
 		},
 		getExpData: func() gin.H {
 			expErr := &solver.InvalidBoardError{
-				Errors: []*solver.InvalidSquareError{{
+				InvalidSquares: []*solver.InvalidSquareError{{
 					Row: 0,
 					Col: 0,
 					Msg: `number out of range`,
 				}},
 			}
-			return gin.H{`error`: expErr.Error(), `detail`: expErr.Errors}
+			return gin.H{`error`: expErr.Error(), `detail`: expErr.InvalidSquares}
 		},
 	}, {
 		desc: `no solution`,
@@ -117,7 +117,7 @@ func TestSolveDuplicateSquareErrors(t *testing.T) {
 	require.NoError(t, err)
 
 	expErr := &solver.InvalidBoardError{
-		Errors: []*solver.InvalidSquareError{{
+		InvalidSquares: []*solver.InvalidSquareError{{
 			Row: 0,
 			Col: 0,
 			Msg: `duplicate number in row, column, or box`,
@@ -138,19 +138,19 @@ func TestSolveDuplicateSquareErrors(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, expErr.Error(), errField)
 
-	detailField, ok := fs[`detail`]
+	invSqField, ok := fs[`invalidSquares`]
 	require.True(t, ok)
-	require.IsType(t, []interface{}{}, detailField)
+	require.IsType(t, []interface{}{}, invSqField)
 
 	// we have to remarshal and unmarshal to get the strong typing we want
-	bs, err := json.Marshal(detailField)
+	bs, err := json.Marshal(invSqField)
 	require.NoError(t, err)
 	var errs []*solver.InvalidSquareError
 	require.NoError(t, json.Unmarshal(bs, &errs))
 
-	require.Len(t, errs, len(expErr.Errors))
+	require.Len(t, errs, len(expErr.InvalidSquares))
 	for _, err := range errs {
-		require.Contains(t, expErr.Errors, err)
+		require.Contains(t, expErr.InvalidSquares, err)
 	}
 }
 
