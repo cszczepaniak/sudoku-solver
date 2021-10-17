@@ -69,7 +69,7 @@ func TestSolveSimpleErrors(t *testing.T) {
 					Msg: `number out of range`,
 				}},
 			}
-			return gin.H{`error`: expErr.Error(), `detail`: expErr.InvalidSquares}
+			return gin.H{`error`: expErr.Error(), `invalidSquares`: expErr.InvalidSquares}
 		},
 	}, {
 		desc: `no solution`,
