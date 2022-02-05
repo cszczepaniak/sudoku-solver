@@ -10,6 +10,8 @@ import (
 	"testing"
 
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/constraint"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
@@ -62,14 +64,13 @@ func TestSolveSimpleErrors(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
 		getExpData: func() gin.H {
-			expErr := &solver.InvalidBoardError{
-				InvalidSquares: []*solver.InvalidSquareError{{
-					Row: 0,
-					Col: 0,
-					Msg: `number out of range`,
-				}},
+			expErr := &constraint.ValidationError{
+				Points: []model.Point{
+					model.NewPoint(0, 0),
+				},
+				Message: `number out of range`,
 			}
-			return gin.H{`error`: expErr.Error(), `invalidSquares`: expErr.InvalidSquares}
+			return gin.H{`error`: expErr.Error(), `invalidPoints`: expErr.Points}
 		},
 	}, {
 		desc: `no solution`,
@@ -116,20 +117,13 @@ func TestSolveDuplicateSquareErrors(t *testing.T) {
 	res, err := http.Post(url, `application/json`, boardToReader(t, board))
 	require.NoError(t, err)
 
-	expErr := &solver.InvalidBoardError{
-		InvalidSquares: []*solver.InvalidSquareError{{
-			Row: 0,
-			Col: 0,
-			Msg: `duplicate number in row, column, or box`,
-		}, {
-			Row: 0,
-			Col: 3,
-			Msg: `duplicate number in row, column, or box`,
-		}, {
-			Row: 2,
-			Col: 0,
-			Msg: `duplicate number in row, column, or box`,
-		}},
+	expErr := &constraint.ValidationError{
+		Message: `sudoku constraints violated`,
+		Points: []model.Point{
+			model.NewPoint(0, 0),
+			model.NewPoint(0, 3),
+			model.NewPoint(2, 0),
+		},
 	}
 
 	fs := parseResponse(t, res.Body)
@@ -138,20 +132,21 @@ func TestSolveDuplicateSquareErrors(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, expErr.Error(), errField)
 
-	invSqField, ok := fs[`invalidSquares`]
+	invPtField, ok := fs[`invalidPoints`]
 	require.True(t, ok)
-	require.IsType(t, []interface{}{}, invSqField)
+	require.IsType(t, []interface{}{}, invPtField)
 
 	// we have to remarshal and unmarshal to get the strong typing we want
-	bs, err := json.Marshal(invSqField)
+	bs, err := json.Marshal(invPtField)
 	require.NoError(t, err)
-	var errs []*solver.InvalidSquareError
-	require.NoError(t, json.Unmarshal(bs, &errs))
-
-	require.Len(t, errs, len(expErr.InvalidSquares))
-	for _, err := range errs {
-		require.Contains(t, expErr.InvalidSquares, err)
+	var pts []model.Point
+	require.NoError(t, json.Unmarshal(bs, &pts))
+	for i := range expErr.Points {
+		expErr.Points[i].Box = 0 // we don't serialize box
 	}
+
+	require.Len(t, pts, len(expErr.Points))
+	require.ElementsMatch(t, expErr.Points, pts)
 }
 
 func TestSolve(t *testing.T) {

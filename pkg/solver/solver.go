@@ -44,7 +44,6 @@ func New(board [][]int) (*Solver, error) {
 	}
 
 	sudokuConstraints := constraint.NewSudoku()
-	var errs []*InvalidSquareError
 	for i, r := range board {
 		if len(r) != Dimension {
 			return nil, ErrWrongNumberOfCols
@@ -55,25 +54,25 @@ func New(board [][]int) (*Solver, error) {
 				p,
 				sudokuConstraints,
 			)
-			if n < Empty || n > MaxEntry {
-				errs = append(errs, newInvalidSquareError(i, j, outOfRange))
-				continue
-			}
 			if n == Empty {
 				continue
 			}
-			// write without regard to duplicates; we'll validate those later
-			s.writeAt(i, j, n)
+			// write without regard to duplicates or out of bounds; we'll validate those in a sec
 			s.cells[i][j].Write(n)
 		}
 	}
-
-	errs = append(errs, s.cache.validateDuplicates()...)
-	if len(errs) != 0 {
-		return nil, &InvalidBoardError{
-			InvalidSquares: errs,
+	aggErr := constraint.NewAggregateValidationError()
+	for _, r := range s.cells {
+		for _, c := range r {
+			if err := aggErr.Add(c.Validate()); err != nil {
+				return nil, err
+			}
 		}
 	}
+	if err := aggErr.ToValidationError(); err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
@@ -96,23 +95,18 @@ func (s *Solver) Solve() ([][]int, error) {
 }
 
 func (s *Solver) solveFrom(start int) error {
-	if start >= len(s.nums) {
-		return nil
-	}
-	for i, n := range s.nums[start:] {
-		if n != 0 {
+	for i := start; i < model.TotalSquares; i++ {
+		r, c := i/9, i%9
+		if s.cells[r][c].Value != 0 {
 			// there's already a number here
 			continue
 		}
 		for guess := MinEntry; guess <= MaxEntry; guess++ {
-			idx := start + i
-			r, c := idx/9, idx%9
-
 			if !s.cells[r][c].SatisfiesConstraints(guess) {
 				continue
 			}
 			s.cells[r][c].Write(guess)
-			if err := s.solveFrom(start + i + 1); err == ErrNoSolution {
+			if err := s.solveFrom(i + 1); err == ErrNoSolution {
 				s.clearAt(r, c, guess)
 				continue
 			} else if err != nil {

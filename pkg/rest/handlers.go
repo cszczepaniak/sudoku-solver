@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/constraint"
 )
 
 func (s *Server) solve(c *gin.Context) {
@@ -40,8 +41,8 @@ func writeErrorResponse(c *gin.Context, code int, err error) {
 		`error`: err.Error(),
 	}
 	switch terr := err.(type) {
-	case *solver.InvalidBoardError:
-		resp[`invalidSquares`] = terr.InvalidSquares
+	case *constraint.ValidationError:
+		resp[`invalidPoints`] = terr.Points
 	default:
 	}
 	c.JSON(code, resp)

@@ -25,13 +25,13 @@ func NewSudoku() *Sudoku {
 }
 
 func (s *Sudoku) EvaluateAt(val int, p model.Point) error {
-	if err := s.Rows[p.Row()].Evaluate(val); err != nil {
+	if err := s.Rows[p.Row].Evaluate(val); err != nil {
 		return err
 	}
-	if err := s.Cols[p.Col()].Evaluate(val); err != nil {
+	if err := s.Cols[p.Col].Evaluate(val); err != nil {
 		return err
 	}
-	if err := s.Boxes[p.Box()].Evaluate(val); err != nil {
+	if err := s.Boxes[p.Box].Evaluate(val); err != nil {
 		return err
 	}
 	return nil
@@ -90,13 +90,13 @@ func extractViolations(err error) ([]model.Point, error) {
 }
 
 func (s *Sudoku) AddValue(val int, p model.Point) {
-	s.Rows[p.Row()].AddValue(val, p)
-	s.Cols[p.Col()].AddValue(val, p)
-	s.Boxes[p.Box()].AddValue(val, p)
+	s.Rows[p.Row].AddValue(val, p)
+	s.Cols[p.Col].AddValue(val, p)
+	s.Boxes[p.Box].AddValue(val, p)
 }
 
 func (s *Sudoku) RemoveValue(val int, p model.Point) {
-	s.Rows[p.Row()].RemoveValue(val, p)
-	s.Cols[p.Col()].RemoveValue(val, p)
-	s.Boxes[p.Box()].RemoveValue(val, p)
+	s.Rows[p.Row].RemoveValue(val, p)
+	s.Cols[p.Col].RemoveValue(val, p)
+	s.Boxes[p.Box].RemoveValue(val, p)
 }

@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/constraint"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
 )
 
 func TestSolve(t *testing.T) {
@@ -131,12 +133,10 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 10, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 7,
-				Col: 6,
-				Msg: `number out of range`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(7, 6),
+			},
 		},
 	}, {
 		desc: `number too small`,
@@ -151,12 +151,10 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 2,
-				Col: 2,
-				Msg: `number out of range`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(2, 2),
+			},
 		},
 	}, {
 		desc: `duplicate in row`,
@@ -171,16 +169,11 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 0,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 0,
-				Col: 3,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(0, 0),
+				model.NewPoint(0, 3),
+			},
 		},
 	}, {
 		desc: `duplicate in row and box`,
@@ -195,16 +188,11 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 1,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 1,
-				Col: 2,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(1, 0),
+				model.NewPoint(1, 2),
+			},
 		},
 	}, {
 		desc: `duplicate in col`,
@@ -219,16 +207,11 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 0,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 4,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(0, 0),
+				model.NewPoint(4, 0),
+			},
 		},
 	}, {
 		desc: `duplicate in col and box`,
@@ -243,16 +226,11 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 0,
-				Col: 5,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 1,
-				Col: 5,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(0, 5),
+				model.NewPoint(1, 5),
+			},
 		},
 	}, {
 		desc: `duplicate in box`,
@@ -267,16 +245,11 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 0,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 2,
-				Col: 2,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(0, 0),
+				model.NewPoint(2, 2),
+			},
 		},
 	}, {
 		desc: `a lot of duplicates`,
@@ -291,28 +264,14 @@ func TestNew(t *testing.T) {
 			{0, 0, 0, 0, 0, 0, 0, 0, 1},
 			{0, 0, 1, 0, 0, 2, 0, 0, 0},
 		},
-		expErr: &solver.InvalidBoardError{
-			InvalidSquares: []*solver.InvalidSquareError{{
-				Row: 0,
-				Col: 0,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 0,
-				Col: 8,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 2,
-				Col: 2,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 7,
-				Col: 8,
-				Msg: `duplicate number in row, column, or box`,
-			}, {
-				Row: 8,
-				Col: 2,
-				Msg: `duplicate number in row, column, or box`,
-			}},
+		expErr: &constraint.ValidationError{
+			Points: []model.Point{
+				model.NewPoint(0, 0),
+				model.NewPoint(0, 8),
+				model.NewPoint(2, 2),
+				model.NewPoint(7, 8),
+				model.NewPoint(8, 2),
+			},
 		},
 	}, {
 		desc: `no error`,
@@ -334,9 +293,9 @@ func TestNew(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			_, err := solver.New(tc.input)
 			switch exp := tc.expErr.(type) {
-			case *solver.InvalidBoardError:
-				require.IsType(t, &solver.InvalidBoardError{}, err)
-				require.ElementsMatch(t, exp.InvalidSquares, err.(*solver.InvalidBoardError).InvalidSquares)
+			case *constraint.ValidationError:
+				require.IsType(t, &constraint.ValidationError{}, err)
+				require.ElementsMatch(t, exp.Points, err.(*constraint.ValidationError).Points)
 			default:
 				require.Equal(t, tc.expErr, err)
 			}

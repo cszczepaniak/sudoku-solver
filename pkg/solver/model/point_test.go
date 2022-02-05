@@ -60,8 +60,8 @@ func TestNewPoint(t *testing.T) {
 	}}
 	for _, tc := range tests {
 		pt := NewPoint(tc.row, tc.col)
-		require.Equal(t, tc.row, pt.Row())
-		require.Equal(t, tc.col, pt.Col())
-		require.Equal(t, tc.expBox, pt.Box())
+		require.Equal(t, tc.row, pt.Row)
+		require.Equal(t, tc.col, pt.Col)
+		require.Equal(t, tc.expBox, pt.Box)
 	}
 }

@@ -27,16 +27,16 @@ func (pc *puzzleCache) add(r, c, n int) {
 		return
 	}
 	pt := model.NewPoint(r, c)
-	pc.rows[pt.Row()].add(pt, n)
-	pc.cols[pt.Col()].add(pt, n)
-	pc.boxes[pt.Box()].add(pt, n)
+	pc.rows[pt.Row].add(pt, n)
+	pc.cols[pt.Col].add(pt, n)
+	pc.boxes[pt.Box].add(pt, n)
 }
 
 func (pc *puzzleCache) remove(r, c, n int) {
 	pt := model.NewPoint(r, c)
-	pc.rows[pt.Row()].remove(pt, n)
-	pc.cols[pt.Col()].remove(pt, n)
-	pc.boxes[pt.Box()].remove(pt, n)
+	pc.rows[pt.Row].remove(pt, n)
+	pc.cols[pt.Col].remove(pt, n)
+	pc.boxes[pt.Box].remove(pt, n)
 }
 
 func (pc *puzzleCache) validateDuplicates() []*InvalidSquareError {
@@ -91,7 +91,7 @@ func (pc pointCache) getInvalidEntries() []*InvalidSquareError {
 			continue
 		}
 		for pt := range pts {
-			errs = append(errs, newInvalidSquareError(pt.Row(), pt.Col(), duplicateNumber))
+			errs = append(errs, newInvalidSquareError(pt.Row, pt.Col, duplicateNumber))
 		}
 	}
 	return errs

@@ -11,10 +11,13 @@ type Cell struct {
 	Constraints []constraint.Constraint
 }
 
-func NewCell(loc model.Point, constraints ...constraint.Constraint) *Cell {
+func NewCell(loc model.Point, cons ...constraint.Constraint) *Cell {
+	allCons := make([]constraint.Constraint, 0, len(cons)+1)
+	allCons = append(allCons, cons...)
+	allCons = append(allCons, constraint.NewBounds())
 	return &Cell{
 		Location:    loc,
-		Constraints: constraints,
+		Constraints: allCons,
 	}
 }
 
@@ -39,6 +42,16 @@ func (c *Cell) SatisfiesConstraints(val int) bool {
 		}
 	}
 	return true
+}
+
+func (c *Cell) Validate() error {
+	aggErr := constraint.NewAggregateValidationError()
+	for _, con := range c.Constraints {
+		if err := aggErr.Add(con.Validate()); err != nil {
+			return err
+		}
+	}
+	return aggErr.ToValidationError()
 }
 
 func (c *Cell) Clear() {

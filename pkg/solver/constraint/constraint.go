@@ -7,15 +7,6 @@ import (
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
 )
 
-type ValidationError struct {
-	Points  []model.Point
-	Message string
-}
-
-func (v *ValidationError) Error() string {
-	return v.Message
-}
-
 type Constraint interface {
 	// Evaluate takes a candidate value for this constraint and returns an error if the constraint would
 	// be violated by the value, otherwise nil.
