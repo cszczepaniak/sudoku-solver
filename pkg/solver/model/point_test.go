@@ -1,4 +1,4 @@
-package solver
+package model
 
 import (
 	"testing"
@@ -59,9 +59,9 @@ func TestNewPoint(t *testing.T) {
 		expIndex: 78,
 	}}
 	for _, tc := range tests {
-		pt := newPoint(tc.row, tc.col)
-		require.Equal(t, tc.row, pt.row)
-		require.Equal(t, tc.col, pt.col)
-		require.Equal(t, tc.expBox, pt.box)
+		pt := NewPoint(tc.row, tc.col)
+		require.Equal(t, tc.row, pt.Row())
+		require.Equal(t, tc.col, pt.Col())
+		require.Equal(t, tc.expBox, pt.Box())
 	}
 }
