@@ -30,19 +30,15 @@ func NewEmptyBoard() [][]int {
 }
 
 type Solver struct {
-	nums  [TotalSquares]int
 	cells [Dimension][Dimension]*Cell
-	cache *puzzleCache
 }
 
 func New(board [][]int) (*Solver, error) {
 	if len(board) != Dimension {
 		return nil, ErrWrongNumberOfRows
 	}
-	s := &Solver{
-		cache: newPuzzleCache(),
-	}
 
+	s := &Solver{}
 	sudokuConstraints := constraint.NewSudoku()
 	for i, r := range board {
 		if len(r) != Dimension {
@@ -107,7 +103,7 @@ func (s *Solver) solveFrom(start int) error {
 			}
 			s.cells[r][c].Write(guess)
 			if err := s.solveFrom(i + 1); err == ErrNoSolution {
-				s.clearAt(r, c, guess)
+				s.cells[r][c].Clear()
 				continue
 			} else if err != nil {
 				return err
@@ -117,15 +113,4 @@ func (s *Solver) solveFrom(start int) error {
 		return ErrNoSolution
 	}
 	return nil
-}
-
-func (s *Solver) writeAt(r, c, n int) {
-	s.nums[r*9+c] = n
-	s.cache.add(r, c, n)
-}
-
-func (s *Solver) clearAt(r, c, n int) {
-	s.nums[r*9+c] = 0
-	s.cache.remove(r, c, n)
-	s.cells[r][c].Clear()
 }
