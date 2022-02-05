@@ -7,14 +7,6 @@ import (
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
 )
 
-const (
-	Dimension    = 9
-	TotalSquares = Dimension * Dimension
-	Empty        = 0
-	MinEntry     = 1
-	MaxEntry     = 9
-)
-
 var (
 	ErrWrongNumberOfRows = errors.New(`expected 9 rows`)
 	ErrWrongNumberOfCols = errors.New(`expected 9 cols`)
@@ -30,18 +22,18 @@ func NewEmptyBoard() [][]int {
 }
 
 type Solver struct {
-	cells [Dimension][Dimension]*Cell
+	cells [model.Dimension][model.Dimension]*Cell
 }
 
 func New(board [][]int) (*Solver, error) {
-	if len(board) != Dimension {
+	if len(board) != model.Dimension {
 		return nil, ErrWrongNumberOfRows
 	}
 
 	s := &Solver{}
 	sudokuConstraints := constraint.NewSudoku()
 	for i, r := range board {
-		if len(r) != Dimension {
+		if len(r) != model.Dimension {
 			return nil, ErrWrongNumberOfCols
 		}
 		for j, n := range r {
@@ -50,33 +42,42 @@ func New(board [][]int) (*Solver, error) {
 				p,
 				sudokuConstraints,
 			)
-			if n == Empty {
+			if n == model.Empty {
 				continue
 			}
 			// write without regard to duplicates or out of bounds; we'll validate those in a sec
 			s.cells[i][j].Write(n)
 		}
 	}
-	aggErr := constraint.NewAggregateValidationError()
-	for _, r := range s.cells {
-		for _, c := range r {
-			if err := aggErr.Add(c.Validate()); err != nil {
-				return nil, err
-			}
-		}
-	}
-	if err := aggErr.ToValidationError(); err != nil {
+
+	err := s.validateCells()
+	if err != nil {
 		return nil, err
 	}
 
 	return s, nil
 }
 
+func (s *Solver) validateCells() error {
+	aggErr := constraint.NewAggregateValidationError()
+	for _, row := range s.cells {
+		for _, cell := range row {
+			for _, con := range cell.Constraints {
+				if err := aggErr.Add(con.Validate()); err != nil {
+					// This wasn't a validation error
+					return err
+				}
+			}
+		}
+	}
+	return aggErr.ToValidationError()
+}
+
 func (s *Solver) ToBoard() [][]int {
-	res := make([][]int, Dimension)
-	for i := 0; i < Dimension; i++ {
-		res[i] = make([]int, Dimension)
-		for j := 0; j < Dimension; j++ {
+	res := make([][]int, model.Dimension)
+	for i := 0; i < model.Dimension; i++ {
+		res[i] = make([]int, model.Dimension)
+		for j := 0; j < model.Dimension; j++ {
 			res[i][j] = s.cells[i][j].Value
 		}
 	}
@@ -97,7 +98,7 @@ func (s *Solver) solveFrom(start int) error {
 			// there's already a number here
 			continue
 		}
-		for guess := MinEntry; guess <= MaxEntry; guess++ {
+		for guess := model.MinEntry; guess <= model.MaxEntry; guess++ {
 			if !s.cells[r][c].SatisfiesConstraints(guess) {
 				continue
 			}

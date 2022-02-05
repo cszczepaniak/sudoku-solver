@@ -44,16 +44,6 @@ func (c *Cell) SatisfiesConstraints(val int) bool {
 	return true
 }
 
-func (c *Cell) Validate() error {
-	aggErr := constraint.NewAggregateValidationError()
-	for _, con := range c.Constraints {
-		if err := aggErr.Add(con.Validate()); err != nil {
-			return err
-		}
-	}
-	return aggErr.ToValidationError()
-}
-
 func (c *Cell) Clear() {
 	for _, constraint := range c.Constraints {
 		constraint.RemoveValue(c.Value, c.Location)
