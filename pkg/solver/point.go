@@ -39,13 +39,6 @@ func (pc *puzzleCache) remove(r, c, n int) {
 	pc.boxes[pt.Box()].remove(pt, n)
 }
 
-func (pc *puzzleCache) isValidEntry(r, c, n int) bool {
-	pt := model.NewPoint(r, c)
-	return pc.rows[pt.Row()].isValidEntry(n) &&
-		pc.cols[pt.Col()].isValidEntry(n) &&
-		pc.boxes[pt.Box()].isValidEntry(n)
-}
-
 func (pc *puzzleCache) validateDuplicates() []*InvalidSquareError {
 	var errSet map[model.Point]*InvalidSquareError
 	for i := 0; i < Dimension; i++ {
@@ -88,10 +81,6 @@ func (pc pointCache) add(pt model.Point, n int) {
 
 func (pc pointCache) remove(pt model.Point, n int) {
 	delete(pc[n], pt)
-}
-
-func (pc pointCache) isValidEntry(n int) bool {
-	return len(pc[n]) == 0
 }
 
 func (pc pointCache) getInvalidEntries() []*InvalidSquareError {

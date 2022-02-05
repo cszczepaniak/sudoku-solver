@@ -26,7 +26,7 @@ func (c *Cell) Write(val int) error {
 		}
 	}
 	for _, constraint := range c.Constraints {
-		constraint.AddValue(val)
+		constraint.AddValue(val, c.Location)
 	}
 	c.Value = val
 	return nil
@@ -34,7 +34,7 @@ func (c *Cell) Write(val int) error {
 
 func (c *Cell) Clear() {
 	for _, constraint := range c.Constraints {
-		constraint.RemoveValue(c.Value)
+		constraint.RemoveValue(c.Value, c.Location)
 	}
 	c.Value = model.Empty
 }

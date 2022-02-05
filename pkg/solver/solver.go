@@ -31,7 +31,7 @@ func NewEmptyBoard() [][]int {
 
 type Solver struct {
 	nums  [TotalSquares]int
-	cells [TotalSquares]*Cell
+	cells [Dimension][Dimension]*Cell
 	cache *puzzleCache
 }
 
@@ -51,7 +51,7 @@ func New(board [][]int) (*Solver, error) {
 		}
 		for j, n := range r {
 			p := model.NewPoint(i, j)
-			s.cells[p.LinearIndex()] = NewCell(
+			s.cells[i][j] = NewCell(
 				p,
 				sudokuConstraints.ConstraintsForPoint(p)...,
 			)
@@ -64,7 +64,7 @@ func New(board [][]int) (*Solver, error) {
 			}
 			// write without regard to duplicates; we'll validate those later
 			s.writeAt(i, j, n)
-			_ = s.cells[p.LinearIndex()].Write(n)
+			_ = s.cells[i][j].Write(n)
 		}
 	}
 
@@ -82,8 +82,7 @@ func (s *Solver) ToBoard() [][]int {
 	for i := 0; i < Dimension; i++ {
 		res[i] = make([]int, Dimension)
 		for j := 0; j < Dimension; j++ {
-			p := model.NewPoint(i, j)
-			res[i][j] = s.cells[p.LinearIndex()].Value
+			res[i][j] = s.cells[i][j].Value
 		}
 	}
 	return res
@@ -107,18 +106,13 @@ func (s *Solver) solveFrom(start int) error {
 		}
 		for guess := MinEntry; guess <= MaxEntry; guess++ {
 			idx := start + i
-			p := model.NewPoint(idx/9, idx%9)
 			r, c := idx/9, idx%9
 
-			err := s.cells[p.LinearIndex()].Write(guess)
+			err := s.cells[r][c].Write(guess)
 			if err != nil {
 				// a constraint was violated
 				continue
 			}
-			// if !s.cache.isValidEntry(r, c, guess) {
-			// 	continue
-			// }
-			// s.writeAt(r, c, guess)
 			if err := s.solveFrom(start + i + 1); err == ErrNoSolution {
 				s.clearAt(r, c, guess)
 				continue
@@ -140,7 +134,5 @@ func (s *Solver) writeAt(r, c, n int) {
 func (s *Solver) clearAt(r, c, n int) {
 	s.nums[r*9+c] = 0
 	s.cache.remove(r, c, n)
-
-	p := model.NewPoint(r, c)
-	s.cells[p.LinearIndex()].Clear()
+	s.cells[r][c].Clear()
 }
