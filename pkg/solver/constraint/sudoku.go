@@ -4,7 +4,7 @@ import (
 	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
 )
 
-// Sudoku is a helper representing the constraints for classic sudoku.
+// Sudoku is a constraint that enforces uniqueness in rows, columns, and boxes.
 type Sudoku struct {
 	pointConstraintBase
 	Rows  [model.Dimension]*uniquenessConstraint
