@@ -53,7 +53,7 @@ func New(board [][]int) (*Solver, error) {
 			p := model.NewPoint(i, j)
 			s.cells[i][j] = NewCell(
 				p,
-				sudokuConstraints.ConstraintsForPoint(p)...,
+				sudokuConstraints,
 			)
 			if n < Empty || n > MaxEntry {
 				errs = append(errs, newInvalidSquareError(i, j, outOfRange))
@@ -64,7 +64,7 @@ func New(board [][]int) (*Solver, error) {
 			}
 			// write without regard to duplicates; we'll validate those later
 			s.writeAt(i, j, n)
-			_ = s.cells[i][j].Write(n)
+			s.cells[i][j].Write(n)
 		}
 	}
 
@@ -108,11 +108,10 @@ func (s *Solver) solveFrom(start int) error {
 			idx := start + i
 			r, c := idx/9, idx%9
 
-			err := s.cells[r][c].Write(guess)
-			if err != nil {
-				// a constraint was violated
+			if !s.cells[r][c].SatisfiesConstraints(guess) {
 				continue
 			}
+			s.cells[r][c].Write(guess)
 			if err := s.solveFrom(start + i + 1); err == ErrNoSolution {
 				s.clearAt(r, c, guess)
 				continue

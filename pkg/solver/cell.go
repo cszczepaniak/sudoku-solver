@@ -18,18 +18,27 @@ func NewCell(loc model.Point, constraints ...constraint.Constraint) *Cell {
 	}
 }
 
-func (c *Cell) Write(val int) error {
-	for _, constraint := range c.Constraints {
-		err := constraint.Evaluate(val)
-		if err != nil {
-			return err
-		}
-	}
+func (c *Cell) Write(val int) {
 	for _, constraint := range c.Constraints {
 		constraint.AddValue(val, c.Location)
 	}
 	c.Value = val
-	return nil
+}
+
+func (c *Cell) SatisfiesConstraints(val int) bool {
+	for _, con := range c.Constraints {
+		var err error
+		switch t := con.(type) {
+		case constraint.PointConstraint:
+			err = t.EvaluateAt(val, c.Location)
+		case constraint.Constraint:
+			err = t.Evaluate(val)
+		}
+		if err != nil {
+			return false
+		}
+	}
+	return true
 }
 
 func (c *Cell) Clear() {
@@ -37,8 +46,4 @@ func (c *Cell) Clear() {
 		constraint.RemoveValue(c.Value, c.Location)
 	}
 	c.Value = model.Empty
-}
-
-func (c *Cell) LinearIndex() int {
-	return c.Location.LinearIndex()
 }

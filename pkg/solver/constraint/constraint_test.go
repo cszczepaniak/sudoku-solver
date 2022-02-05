@@ -47,4 +47,21 @@ func TestUniquenessValidate(t *testing.T) {
 		model.NewPoint(1, 2),
 		model.NewPoint(2, 3),
 	}, verr.Points)
+
+	c.AddValue(2, model.NewPoint(5, 5))
+	c.AddValue(2, model.NewPoint(5, 6))
+	c.AddValue(2, model.NewPoint(5, 7))
+	err = c.Validate()
+	require.Error(t, err)
+	require.IsType(t, &ValidationError{}, err)
+
+	verr = err.(*ValidationError)
+	require.ElementsMatch(t, []model.Point{
+		model.NewPoint(1, 2),
+		model.NewPoint(2, 3),
+		model.NewPoint(2, 2),
+		model.NewPoint(5, 5),
+		model.NewPoint(5, 6),
+		model.NewPoint(5, 7),
+	}, verr.Points)
 }
