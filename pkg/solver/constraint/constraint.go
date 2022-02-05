@@ -1,20 +1,46 @@
 package constraint
 
+import (
+	"errors"
+	"fmt"
+)
+
 type Constraint interface {
-	Evaluate(n int) bool
+	// Evaluate takes a candidate value for this constraint and returns an error if the constraint would
+	// be violated by the value, otherwise nil.
+	Evaluate(n int) error
+
+	AddValue(n int)
+	RemoveValue(n int)
 }
 
-type sudokuConstraint struct {
-	row map[int]struct{}
-	col map[int]struct{}
-	box map[int]struct{}
+func violation(val int, err error) error {
+	return fmt.Errorf(`value %d violates constraint: %w`, val, err)
 }
 
-func (c *sudokuConstraint) Evaluate(n int) bool {
-	for _, set := range []map[int]struct{}{c.row, c.col, c.box} {
-		if _, ok := set[n]; ok {
-			return false
-		}
+type uniquenessConstraint struct {
+	set map[int]struct{}
+}
+
+func NewUniqueness() *uniquenessConstraint {
+	return &uniquenessConstraint{
+		set: make(map[int]struct{}),
 	}
-	return true
+}
+
+var errDuplicateValue = errors.New(`duplicate value`)
+
+func (c *uniquenessConstraint) Evaluate(n int) error {
+	if _, ok := c.set[n]; ok {
+		return violation(n, errDuplicateValue)
+	}
+	return nil
+}
+
+func (c *uniquenessConstraint) AddValue(n int) {
+	c.set[n] = struct{}{}
+}
+
+func (c *uniquenessConstraint) RemoveValue(n int) {
+	delete(c.set, n)
 }

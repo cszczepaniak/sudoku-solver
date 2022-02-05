@@ -25,3 +25,7 @@ func (p Point) Col() int {
 func (p Point) Box() int {
 	return p.box
 }
+
+func (p Point) LinearIndex() int {
+	return 9*p.Row() + p.Col()
+}

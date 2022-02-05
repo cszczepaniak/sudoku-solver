@@ -1,33 +1,30 @@
 package constraint
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestSudokuConstraint(t *testing.T) {
-	row := map[int]struct{}{}
-	col := map[int]struct{}{}
-	box := map[int]struct{}{}
-
-	c := &sudokuConstraint{
-		row: row,
-		col: col,
-		box: box,
-	}
-
+func TestUniquenessConstraint(t *testing.T) {
+	c := NewUniqueness()
 	for i := 1; i < 10; i++ {
-		require.True(t, c.Evaluate(i))
+		require.NoError(t, c.Evaluate(i))
 	}
 
-	row[1] = struct{}{}
-	col[2] = struct{}{}
-	box[3] = struct{}{}
+	c.AddValue(1)
+	c.AddValue(2)
+	c.AddValue(3)
 	for i := 1; i < 4; i++ {
-		require.False(t, c.Evaluate(i))
+		err := c.Evaluate(i)
+		require.Error(t, err)
+		require.True(t, errors.Is(err, errDuplicateValue))
 	}
 	for i := 4; i < 10; i++ {
-		require.True(t, c.Evaluate(i))
+		require.NoError(t, c.Evaluate(i))
 	}
+
+	c.RemoveValue(2)
+	require.NoError(t, c.Evaluate(2))
 }

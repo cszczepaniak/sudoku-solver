@@ -1,6 +1,11 @@
 package solver
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/constraint"
+	"github.com/cszczepaniak/sudoku-solver/pkg/solver/model"
+)
 
 const (
 	Dimension    = 9
@@ -26,6 +31,7 @@ func NewEmptyBoard() [][]int {
 
 type Solver struct {
 	nums  [TotalSquares]int
+	cells [TotalSquares]*Cell
 	cache *puzzleCache
 }
 
@@ -36,21 +42,29 @@ func New(board [][]int) (*Solver, error) {
 	s := &Solver{
 		cache: newPuzzleCache(),
 	}
+
+	sudokuConstraints := constraint.NewSudoku()
 	var errs []*InvalidSquareError
 	for i, r := range board {
 		if len(r) != Dimension {
 			return nil, ErrWrongNumberOfCols
 		}
 		for j, n := range r {
+			p := model.NewPoint(i, j)
+			s.cells[p.LinearIndex()] = NewCell(
+				p,
+				sudokuConstraints.ConstraintsForPoint(p)...,
+			)
 			if n < Empty || n > MaxEntry {
 				errs = append(errs, newInvalidSquareError(i, j, outOfRange))
 				continue
 			}
-			if n == 0 {
+			if n == Empty {
 				continue
 			}
 			// write without regard to duplicates; we'll validate those later
 			s.writeAt(i, j, n)
+			_ = s.cells[p.LinearIndex()].Write(n)
 		}
 	}
 
@@ -66,7 +80,11 @@ func New(board [][]int) (*Solver, error) {
 func (s *Solver) ToBoard() [][]int {
 	res := make([][]int, Dimension)
 	for i := 0; i < Dimension; i++ {
-		res[i] = s.nums[i*9 : (i*9)+9]
+		res[i] = make([]int, Dimension)
+		for j := 0; j < Dimension; j++ {
+			p := model.NewPoint(i, j)
+			res[i][j] = s.cells[p.LinearIndex()].Value
+		}
 	}
 	return res
 }
@@ -89,11 +107,18 @@ func (s *Solver) solveFrom(start int) error {
 		}
 		for guess := MinEntry; guess <= MaxEntry; guess++ {
 			idx := start + i
+			p := model.NewPoint(idx/9, idx%9)
 			r, c := idx/9, idx%9
-			if !s.cache.isValidEntry(r, c, guess) {
+
+			err := s.cells[p.LinearIndex()].Write(guess)
+			if err != nil {
+				// a constraint was violated
 				continue
 			}
-			s.writeAt(r, c, guess)
+			// if !s.cache.isValidEntry(r, c, guess) {
+			// 	continue
+			// }
+			// s.writeAt(r, c, guess)
 			if err := s.solveFrom(start + i + 1); err == ErrNoSolution {
 				s.clearAt(r, c, guess)
 				continue
@@ -115,4 +140,7 @@ func (s *Solver) writeAt(r, c, n int) {
 func (s *Solver) clearAt(r, c, n int) {
 	s.nums[r*9+c] = 0
 	s.cache.remove(r, c, n)
+
+	p := model.NewPoint(r, c)
+	s.cells[p.LinearIndex()].Clear()
 }
