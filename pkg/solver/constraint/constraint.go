@@ -23,7 +23,7 @@ type Constraint interface {
 
 	// Validate returns an error indicating which points are violating the constraint. If the constraint
 	// is satisfied, it returns nil.
-	Validate() *ValidationError
+	Validate() error
 
 	// AddValue is used to register a value with the constraint at the given point.
 	AddValue(n int, p model.Point)
@@ -54,7 +54,7 @@ func (c *uniquenessConstraint) Evaluate(n int) error {
 	return nil
 }
 
-func (c *uniquenessConstraint) Validate() *ValidationError {
+func (c *uniquenessConstraint) Validate() error {
 	for _, pts := range c.set {
 		if len(pts) > 1 {
 			ptSlice := make([]model.Point, 0, len(pts))

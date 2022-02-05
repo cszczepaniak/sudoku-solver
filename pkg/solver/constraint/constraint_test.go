@@ -29,3 +29,22 @@ func TestUniquenessEvaluate(t *testing.T) {
 	c.RemoveValue(2, model.Point{})
 	require.NoError(t, c.Evaluate(2))
 }
+
+func TestUniquenessValidate(t *testing.T) {
+	c := NewUniqueness()
+	c.AddValue(1, model.NewPoint(1, 2))
+	c.AddValue(2, model.NewPoint(2, 2))
+
+	require.NoError(t, c.Validate())
+
+	c.AddValue(1, model.NewPoint(2, 3))
+	err := c.Validate()
+	require.Error(t, err)
+	require.IsType(t, &ValidationError{}, err)
+
+	verr := err.(*ValidationError)
+	require.ElementsMatch(t, []model.Point{
+		model.NewPoint(1, 2),
+		model.NewPoint(2, 3),
+	}, verr.Points)
+}
