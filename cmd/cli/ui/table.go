@@ -42,7 +42,7 @@ func (a *Application) initializeTable() {
 		}
 
 		if event.Key() == tcell.KeyEnter {
-			s, err := solver.New(a.board)
+			s, err := solver.New(a.board, nil)
 			if err == nil {
 				solved, err := s.Solve()
 				if err == nil {
