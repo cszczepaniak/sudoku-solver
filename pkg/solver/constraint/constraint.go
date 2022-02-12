@@ -39,3 +39,28 @@ func (pointConstraintBase) Evaluate(val int) error {
 func violation(val int, err error) error {
 	return fmt.Errorf(`value %d violates constraint: %w`, val, err)
 }
+
+type ConstraintMap map[model.Point][]Constraint
+
+func (m ConstraintMap) Add(p model.Point, c ...Constraint) {
+	m[p] = append(m[p], c...)
+}
+
+func (m ConstraintMap) Merge(other ConstraintMap) {
+	for p, cs := range other {
+		m.Add(p, cs...)
+	}
+}
+
+func MapFromKillerCages(cs ...model.KillerCage) ConstraintMap {
+	m := make(ConstraintMap)
+	for _, c := range cs {
+		curr := make(ConstraintMap, len(c.Cells))
+		k := NewKiller(c.Target, c.Cells)
+		for p := range c.Cells {
+			curr.Add(p, k)
+		}
+		m.Merge(curr)
+	}
+	return m
+}

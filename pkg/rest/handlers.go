@@ -14,7 +14,7 @@ func (s *Server) solve(c *gin.Context) {
 	if !ok {
 		return
 	}
-	solver, err := solver.New(input)
+	solver, err := solver.New(input, nil)
 	if err != nil {
 		writeErrorResponse(c, http.StatusBadRequest, err)
 		return

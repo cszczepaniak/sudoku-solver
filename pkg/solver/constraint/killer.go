@@ -16,12 +16,12 @@ type killerConstraint struct {
 
 var _ PointConstraint = (*killerConstraint)(nil)
 
-func NewKiller(target int, points ...model.Point) *killerConstraint {
+func NewKiller(target int, points map[model.Point]struct{}) *killerConstraint {
 	res := &killerConstraint{
 		target:    target,
 		cageCells: make(map[model.Point]int, len(points)),
 	}
-	for _, pt := range points {
+	for pt := range points {
 		res.cageCells[pt] = 0
 	}
 	return res

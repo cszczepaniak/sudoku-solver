@@ -25,7 +25,7 @@ type Solver struct {
 	cells [model.Dimension][model.Dimension]*Cell
 }
 
-func New(board [][]int) (*Solver, error) {
+func New(board [][]int, cellConstraints map[model.Point][]constraint.Constraint) (*Solver, error) {
 	if len(board) != model.Dimension {
 		return nil, ErrWrongNumberOfRows
 	}
@@ -38,9 +38,19 @@ func New(board [][]int) (*Solver, error) {
 		}
 		for j, n := range r {
 			p := model.NewPoint(i, j)
+
+			var cons []constraint.Constraint
+			if cellConstraints == nil {
+				cons = []constraint.Constraint{sudokuConstraints}
+			} else {
+				cons = make([]constraint.Constraint, 0, len(cellConstraints[p])+1)
+				cons = append(cons, cellConstraints[p]...)
+				cons = append(cons, sudokuConstraints)
+			}
+
 			s.cells[i][j] = NewCell(
 				p,
-				sudokuConstraints,
+				cons...,
 			)
 			if n == model.Empty {
 				continue
